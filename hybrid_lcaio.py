@@ -31,7 +31,7 @@ import random
 class Hybrid_LCAIO(object):
 
 
-    def __init__(self, lcaio_object):
+    def __init__(self, lcaio_object, double_counting_method):
         self.A_lca = lcaio_object.A_ff
         self.F_lca = lcaio_object.F_f
         self.C_lca = lcaio_object.C_f
@@ -57,7 +57,7 @@ class Hybrid_LCAIO(object):
         self.H = scipy.sparse.csr_matrix(self.H)
         self.Fixed_geo_concordance = self.H.multiply(lcaio_object.Geo).tocsr() 
 
-        self.double_counting = lcaio_object.double_counting
+        self.double_counting = lcaio_object.double_counting_method
         if self.double_counting == 'STAM':
             self.correction_matrix_STAM = lcaio_object.correct_STAM
         elif self.double_counting == 'binary':
