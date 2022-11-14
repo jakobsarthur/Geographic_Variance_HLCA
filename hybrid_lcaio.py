@@ -31,7 +31,7 @@ import random
 class Hybrid_LCAIO(object):
 
 
-    def __init__(self, lcaio_object, double_counting_method):
+    def __init__(self, lcaio_object):
         self.A_lca = lcaio_object.A_ff
         self.F_lca = lcaio_object.F_f
         self.C_lca = lcaio_object.C_f
@@ -57,11 +57,22 @@ class Hybrid_LCAIO(object):
         self.H = scipy.sparse.csr_matrix(self.H)
         self.Fixed_geo_concordance = self.H.multiply(lcaio_object.Geo).tocsr() 
 
-        self.double_counting = lcaio_object.double_counting_method
-        if self.double_counting == 'STAM':
+        # load both double counting correction strategies if available
+        try: 
             self.correction_matrix_STAM = lcaio_object.correct_STAM
-        elif self.double_counting == 'binary':
+        except AttributeError:
+            pass
+        try:
             self.correction_matrix_binary = lcaio_object.correct_binary
+        except AttributeError:
+            pass
+        # create double counting method attribute. This will be set later
+        self.double_counting_method = None
+
+        # create instances for ecoinvent and exiobase versions to be saved
+        # these are not saved in pylcaio... --> something to fix
+        self.ecoinvent_version = None
+        self.exiobase_version = None
 
         self.sectors_of_IO = lcaio_object.sectors_of_IO
         self.regions_of_IO = lcaio_object.regions_of_IO
@@ -246,11 +257,14 @@ class Hybrid_LCAIO(object):
 
     def build_priceless_Cu(self):
         uncorrected_Cu = self.A_io.dot(self.Fixed_geo_concordance)
-        self.priceless_Cu = self.correction_matrix_STAM.multiply(uncorrected_Cu).tocsr()
+        if self.double_counting_method == 'STAM':
+            self.priceless_Cu = self.correction_matrix_STAM.multiply(uncorrected_Cu).tocsr()
+        elif self.double_counting_method == 'binary':
+            self.priceless_Cu = self.correction_matrix_binary.multiply(uncorrected_Cu).tocsr()
 
 
     def create_Cu(self, constant_price=False, use_ecoinvent_price=False,
-                  constant_region_var_price=False):
+                  constant_region_var_price=False, double_counting_method='STAM'):
         """Note that the use_ecoinvent_price flag overrules the
         constant_price flag.
 
@@ -271,7 +285,7 @@ class Hybrid_LCAIO(object):
         if constant_region_var_price:
             if self.priceless_Cu==None:
                 print("Building priceless Cu...")
-                self.build_priceless_Cu()
+                self.build_priceless_Cu(double_counting_method)
             price_vec = self.get_variable_price()
             Cu = self.priceless_Cu.multiply(price_vec).tocsr()
         else:
@@ -280,7 +294,11 @@ class Hybrid_LCAIO(object):
                                         use_ecoinvent_price=use_ecoinvent_price)
             Cu = self.build_uncorrected_priceless_Cu(region_vec)
             Cu *= price_vec
-            Cu = self.correction_matrix_STAM.multiply(Cu).tocsr()
+            # multiply with appropriate double counting correction matrix
+            if self.double_counting_method == 'STAM':
+                Cu = self.correction_matrix_STAM.multiply(Cu).tocsr()
+            elif self.double_counting_method == 'binary':
+                Cu = self.correction_matrix_binary.multiply(Cu).tocsr()
         return Cu
 
     def calc_L_lca(self):
