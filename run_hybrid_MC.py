@@ -189,8 +189,11 @@ def prepare_calculations(
                                dtype='f8')
     f.close()
 
-def run_monte_carlo(hdb, MC_par_dic, results_file_path, N_cores, hdb_object_file_name):
-    if MC_par_dic['constant_region_var_price']:
+def run_monte_carlo(hdb, MC_par_dic, results_file_path, hdb_object_file_name, N_cores=1):
+    """runs either multicore processing with ray remote or single core.
+    In case the regional variance is not caclulated (constant_region_var_price=True)
+    no multicore processing is used either"""
+    if MC_par_dic['constant_region_var_price'] or N_cores<2:
         #don't use ray multiplrocessing
         t01 = time.time()
         _ = [MC_footprint(hdb, MC_par_dic['indices'], results_file_path,
@@ -201,7 +204,7 @@ def run_monte_carlo(hdb, MC_par_dic, results_file_path, N_cores, hdb_object_file
         print('Done calculating results')
         dt1 = time.time()-t01
         print("Elapsed wall time for Calculating {} runs: {} hours, {}, minutes, and {:.0f} seconds.".format(
-                N_runs, dt1//3600, (dt1%3600)//60, dt1%60))
+                MC_par_dic['N_runs'], dt1//3600, (dt1%3600)//60, dt1%60))
     else:
         # initiate ray
         print('initialising Ray...')
@@ -220,14 +223,14 @@ def run_monte_carlo(hdb, MC_par_dic, results_file_path, N_cores, hdb_object_file
         print('Done calculating results')
         dt1 = time.time()-t01
         print("Elapsed wall time for Calculating {} runs: {} hours, {}, minutes, and {:.0f} seconds.".format(
-                N_runs, dt1//3600, (dt1%3600)//60, dt1%60))
+                MC_par_dic['N_runs'], dt1//3600, (dt1%3600)//60, dt1%60))
         print('Shut down Ray...')
         ray.shutdown()
 
     if hdb.calc_lca_impacts_flag:
         print('Calculating LCA impacts...')
         hdb.calc_lca_impacts(FU=MC_par_dic['FU'])
-        del hdb.calc_lca_impacts_flag
+        hdb.calc_lca_impacts_flag = False
 
         print('Saving lca impacts to file')
         f = h5py.File(results_file_path, 'a')
@@ -244,7 +247,7 @@ def run_monte_carlo(hdb, MC_par_dic, results_file_path, N_cores, hdb_object_file
     with open(hdb_object_file_name, 'wb') as fh:
         pickle.dump(hdb, fh)
 
-    f = h5py.File(results_file_name, 'a')
+    f = h5py.File(results_file_path, 'a')
     f.attrs['hdb_file_name'] = hdb_object_file_name
     f.close()
 
@@ -276,8 +279,8 @@ def MC_footprint_ray(obj, indices, file_name,
                  use_ecoinvent_price=False,
                  constant_region_var_price=False,
                  FU=None, run_nr=None, total_runs=None):
-    if run_nr%100==0:
-        print('Run {} of {}. {}'.format(run_nr,total_runs, time.ctime()))
+    if run_nr%100==0 or run_nr==total_runs-1:
+        print('Run {} of {}. {}'.format(run_nr+1,total_runs, time.ctime()))
     Cu = obj.create_Cu(constant_price=constant_price,
                        use_ecoinvent_price=use_ecoinvent_price,
                        constant_region_var_price=constant_region_var_price)
@@ -298,8 +301,8 @@ def MC_footprint(obj, indices, file_name,
                  use_ecoinvent_price=False,
                  constant_region_var_price=False,
                  FU=None, run_nr=None, total_runs=None):
-    if run_nr%100==0:
-        print('Run {} of {}. {}'.format(run_nr,total_runs, time.ctime()))
+    if run_nr%100==0 or run_nr==total_runs-1:
+        print('Run {} of {}. {}'.format(run_nr+1,total_runs, time.ctime()))
     Cu = obj.create_Cu(constant_price=constant_price,
                        use_ecoinvent_price=use_ecoinvent_price,
                        constant_region_var_price=constant_region_var_price)
