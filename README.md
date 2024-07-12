@@ -1,5 +1,8 @@
 # Geographic_Variance_HLCA
 
+Zenodo record: [![DOI](https://zenodo.org/badge/455208079.svg)](https://zenodo.org/doi/10.5281/zenodo.12731487)
+
+
 
 Repo to build hybrid lca database with ecoinvent en exiobase, including geographic and price variance. 
 **Relevant Publication:** ***Accepted at Journal of Industrial Ecology***
