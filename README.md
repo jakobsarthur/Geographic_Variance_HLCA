@@ -1,6 +1,6 @@
 # Geographic_Variance_HLCA
 
-Zenodo record: [![DOI](https://zenodo.org/badge/455208079.svg)](https://zenodo.org/doi/10.5281/zenodo.12731487)
+[![DOI](https://zenodo.org/badge/455208079.svg)](https://zenodo.org/doi/10.5281/zenodo.12731487)
 
 
 
