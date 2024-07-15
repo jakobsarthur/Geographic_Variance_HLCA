@@ -30,4 +30,5 @@ Otherwise it requires:
 ### [Notebooks](https://github.com/jakobsarthur/Geographic_Variance_HLCA/tree/master/notebooks)
 
 - **RunPylcio.ipynb:** Notebook to generate a pylcaio object (used for all the concordances).
-- - **run_hybrid_montecarlo.ipynb:** Notebook to run a MC simulation to estimate the gepographic and price variance
+- **run_hybrid_montecarlo.ipynb:** Notebook to run a MC simulation to estimate the gepographic and price variance
+- **Analyse_MC)results.ipynb:** A working notebook that can be used to analyse the MC simulation data and produce plot. **WARNING:** not a cleaned notebook, **use with care**!!!
