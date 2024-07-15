@@ -32,3 +32,13 @@ Otherwise it requires:
 - **RunPylcio.ipynb:** Notebook to generate a pylcaio object (used for all the concordances).
 - **run_hybrid_montecarlo.ipynb:** Notebook to run a MC simulation to estimate the gepographic and price variance
 - **Analyse_MC)results.ipynb:** A working notebook that can be used to analyse the MC simulation data and produce plot. **WARNING:** not a cleaned notebook, **use with care**!!!
+
+### [mapping_data](https://github.com/jakobsarthur/Geographic_Variance_HLCA/tree/master/mapping_data)
+Mapping files between ecoinvent processes (v3.5 and v3.8) and BACI for products (HS12 classification) and regional mappings.
+- eco_baci_country_mapping.xlsx : excel file mapping the regions in ecoinvent to country codes
+- ecoinvent35-baci_region_mapping.json : json file mapping the activity_product uuids to a list of country codes
+- ecoinvent35-HS12_mapping.json : json file mapping the activity_product uuids to a list of HS12 commodity codes
+- ecoinvent38-baci_region_mapping.json : json file mapping the activity_product uuids to a list of country codes
+- ecoinvent38-HS12_mapping.json : json file mapping the activity_product uuids to a list of HS12 commodity codes
+
+
